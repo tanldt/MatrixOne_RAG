@@ -1,19 +1,19 @@
-# MatrixOne và ứng dụng RAG — Hướng dẫn thực hành
+# MatrixOne and RAG Applications - Practical Guide
 
-## 1. MatrixOne là gì?
+## 1. What Is MatrixOne?
 
-[MatrixOne](https://github.com/matrixorigin/matrixone) là cơ sở dữ liệu mã nguồn mở, hỗ trợ SQL và nhiều loại workload, bao gồm lưu trữ và tìm kiếm vector embeddings. MatrixOne **không phải** là LLM hoặc AI agent; trong hệ thống RAG, nó chủ yếu đóng vai trò lưu trữ tài liệu, metadata và truy xuất ngữ cảnh.
+[MatrixOne](https://github.com/matrixorigin/matrixone) is an open-source database that supports SQL and multiple workload types, including storing and searching vector embeddings. MatrixOne is **not** an LLM or an AI agent; in a RAG system, it mainly acts as the storage and retrieval layer for documents, metadata, and context.
 
-Các năng lực đáng chú ý:
+Notable capabilities:
 
-- Relational SQL và analytical workloads.
-- Vector data (`VECF32`), vector similarity search.
-- Full-text search và khả năng kết hợp truy vấn theo từ khóa, vector, metadata.
-- Tương thích giao thức MySQL (không có nghĩa tất cả tính năng MySQL/ORM hoàn toàn tương thích).
+- Relational SQL and analytical workloads.
+- Vector data (`VECF32`) and vector similarity search.
+- Full-text search and the ability to combine keyword, vector, and metadata queries.
+- MySQL protocol compatibility, though this does not mean every MySQL feature or ORM behavior is fully compatible.
 
-## 2. Có làm RAG được không?
+## 2. Can It Be Used for RAG?
 
-**Có.** Luồng triển khai điển hình:
+**Yes.** A typical implementation flow looks like this:
 
 ```text
 PDF / DOCX / Web / Database
@@ -36,9 +36,9 @@ PDF / DOCX / Web / Database
  Answer with source citations
 ```
 
-MatrixOne làm phần **storage và retrieval**. Bạn vẫn cần embedding model, chat model và phần ứng dụng điều phối pipeline.
+MatrixOne handles the **storage and retrieval** part. You still need an embedding model, a chat model, and an application layer to orchestrate the pipeline.
 
-## 3. Chạy thử bằng Docker
+## 3. Run It with Docker
 
 ```bash
 docker run -d \
@@ -49,15 +49,15 @@ docker run -d \
 docker ps
 ```
 
-Kết nối bằng MySQL client (tài khoản mặc định từ quick start, chỉ sử dụng local/demo; hãy đổi mật khẩu khi triển khai thực tế):
+Connect with a MySQL client. The default quick-start account should only be used for local demos; change the password before any real deployment.
 
 ```bash
 mysql -h 127.0.0.1 -P 6001 -u root -p111
 ```
 
-## 4. Tạo bảng chunks và embeddings
+## 4. Create a Chunks and Embeddings Table
 
-Ví dụ dùng vector 1536 chiều, phù hợp với đầu ra mặc định của `text-embedding-3-small`:
+This example uses a 1536-dimensional vector, matching the default output size of `text-embedding-3-small`:
 
 ```sql
 CREATE DATABASE rag_demo;
@@ -71,9 +71,9 @@ CREATE TABLE document_chunks (
 );
 ```
 
-> Lưu ý: Kiểm tra cú pháp với **phiên bản MatrixOne đang chạy**; số chiều trong cột vector phải khớp embedding model.
+> Note: Check the syntax against the **specific MatrixOne version you are running**. The vector column dimension must match the embedding model output.
 
-## 5. Tạo embeddings bằng Python
+## 5. Create Embeddings with Python
 
 ```python
 from openai import OpenAI
@@ -92,11 +92,11 @@ embedding = response.data[0].embedding
 print(len(embedding))  # 1536
 ```
 
-Sau đó insert `document_name`, `content` và **vector đầy đủ** vào MatrixOne thông qua driver tương thích MySQL. Đoạn code trên chỉ minh họa tạo embedding, chưa bao gồm bước insert.
+After that, insert `document_name`, `content`, and the **full vector** into MatrixOne through a MySQL-compatible driver. The code above only demonstrates embedding generation; it does not include the insert step.
 
-## 6. Truy vấn vector similarity
+## 6. Query Vector Similarity
 
-Khi có câu hỏi mới, tạo embedding với **cùng embedding model**, sau đó truy vấn các chunks gần nhất:
+When a new question comes in, create an embedding with the **same embedding model**, then query the nearest chunks:
 
 ```sql
 SELECT
@@ -109,9 +109,9 @@ ORDER BY distance ASC
 LIMIT 5;
 ```
 
-`[0.012, -0.028, ...]` chỉ là placeholder: cần thay bằng vector hợp lệ, đủ số chiều và định dạng theo phiên bản MatrixOne đang dùng. Nên truyền tham số một cách an toàn thay vì ghép SQL từ input người dùng.
+`[0.012, -0.028, ...]` is only a placeholder. Replace it with a valid vector that has the correct number of dimensions and the format expected by your MatrixOne version. Pass parameters safely instead of concatenating SQL from user input.
 
-Với dataset lớn, xem xét IVF/HNSW vector index. Ví dụ IVF-FLAT (tính năng/cú pháp có thể phụ thuộc phiên bản):
+For larger datasets, consider IVF/HNSW vector indexes. Example IVF-FLAT syntax, depending on MatrixOne version and feature availability:
 
 ```sql
 SET experimental_ivf_index = 1;
@@ -123,11 +123,11 @@ LISTS = 100
 OP_TYPE 'vector_l2_ops';
 ```
 
-Với POC nhỏ, có thể bắt đầu bằng exact vector search để có baseline trước khi tối ưu index.
+For a small POC, start with exact vector search first so you have a baseline before optimizing indexes.
 
-## 7. Sinh câu trả lời từ ngữ cảnh
+## 7. Generate an Answer from Retrieved Context
 
-Giả sử `retrieved_chunks` là danh sách nội dung truy vấn được từ MatrixOne:
+Assume `retrieved_chunks` is the list of content retrieved from MatrixOne:
 
 ```python
 question = "How do I troubleshoot slow SQL queries?"
@@ -152,9 +152,9 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-Đây là minh họa riêng cho bước generation, không phải script end-to-end. Trong ứng dụng thật, nên truyền kèm tên tài liệu, section/page và ID chunk để LLM trích dẫn nguồn.
+This only illustrates the generation step; it is not an end-to-end script. In a real application, include document name, section/page, and chunk ID so the LLM can cite sources.
 
-## 8. Kiến trúc đề xuất cho .NET / Azure
+## 8. Suggested .NET / Azure Architecture
 
 ```text
 React / Angular (Chat UI, upload)
@@ -172,57 +172,57 @@ Azure OpenAI          MatrixOne
        Azure Blob Storage
 ```
 
-| Thành phần | Gợi ý |
+| Component | Suggestion |
 |---|---|
-| Frontend | Angular hoặc React |
+| Frontend | Angular or React |
 | Backend | ASP.NET Core Web API |
 | Database | MatrixOne |
-| DB client | MySqlConnector (xác minh compatibility) |
+| DB client | MySqlConnector (verify compatibility) |
 | Embedding + LLM | Azure OpenAI |
-| RAG orchestration | Microsoft Semantic Kernel hoặc custom C# |
+| RAG orchestration | Microsoft Semantic Kernel or custom C# |
 | Background jobs | Hangfire |
 | File storage | Azure Blob Storage |
 
-### Project portfolio: Enterprise Knowledge Assistant
+### Portfolio Project: Enterprise Knowledge Assistant
 
-- Upload PDF, DOCX, Markdown.
-- Extract text và chia thành chunks.
-- Sinh embeddings và lưu vào MatrixOne.
-- Search theo ngữ nghĩa, keyword và metadata.
-- Chat hỏi đáp với source citations.
-- Phân quyền truy cập tài liệu theo user/team.
-- Theo dõi ingestion jobs, retries và chất lượng retrieval.
+- Upload PDF, DOCX, and Markdown files.
+- Extract text and split it into chunks.
+- Generate embeddings and store them in MatrixOne.
+- Search by semantics, keywords, and metadata.
+- Chat with source citations.
+- Control document access by user/team.
+- Track ingestion jobs, retries, and retrieval quality.
 
-### Lộ trình
+### Roadmap
 
-1. **Phase 1 — MVP:** Docker, nhập tài liệu, embeddings, vector search, chat endpoint.
-2. **Phase 2 — Reliability:** background jobs, idempotency, retry, document update và citations.
-3. **Phase 3 — Advanced RAG:** hybrid search, reranking, access controls, evaluation set.
+1. **Phase 1 - MVP:** Docker, document ingestion, embeddings, vector search, chat endpoint.
+2. **Phase 2 - Reliability:** background jobs, idempotency, retry, document updates, and citations.
+3. **Phase 3 - Advanced RAG:** hybrid search, reranking, access controls, evaluation set.
 
-### Demo trong repo này: Ticketshine Support Copilot
+### Demo in This Repo: Ticketshine Support Copilot
 
-Repo này mở rộng guide thành một demo học tập có thể đưa vào portfolio:
+This repo extends the guide into a study demo that can also be used in a portfolio:
 
 - Spec: `docs/superpowers/specs/2026-10-08-ticketshine-support-copilot-design.md`
 - Backend: `src/TicketshineSupportCopilot.Api`
 - Frontend: `web`
 - Sample data: `sample-data/ticketshine`
 
-Luồng demo: chạy MatrixOne bằng Docker, chạy ASP.NET Core API, chạy React UI, bấm **Index docs**, sau đó hỏi các câu support như refund, delayed order, transfer email hoặc escalation. App sẽ retrieve chunks từ MatrixOne và trả lời kèm citations.
+Demo flow: run MatrixOne with Docker, run the ASP.NET Core API, run the React UI, click **Index docs**, then ask support questions about refunds, delayed orders, transfer emails, or escalation. The app retrieves chunks from MatrixOne and answers with citations.
 
-## 9. So sánh nhanh
+## 9. Quick Comparison
 
-| Giải pháp | Phù hợp khi |
+| Solution | Best Fit |
 |---|---|
-| **MatrixOne** | Muốn thử SQL + analytics + vector trong cùng engine |
-| PostgreSQL + pgvector | Ứng dụng SQL truyền thống cần bổ sung RAG |
-| Qdrant | Vector search chuyên biệt |
-| Milvus | Vector search lớn, nhiều vector workloads |
-| Azure AI Search | Managed search, hybrid retrieval trong Azure |
+| **MatrixOne** | You want to try SQL + analytics + vectors in the same engine |
+| PostgreSQL + pgvector | A traditional SQL application needs RAG features |
+| Qdrant | Specialized vector search |
+| Milvus | Large-scale vector search and many vector workloads |
+| Azure AI Search | Managed search and hybrid retrieval in Azure |
 
-**Khuyến nghị:** MatrixOne đáng thử để học RAG và AI-native database. Với production .NET/Azure, nên benchmark thực tế với PostgreSQL + pgvector hoặc Azure AI Search về recall, latency, chi phí, vận hành và khả năng tích hợp.
+**Recommendation:** MatrixOne is worth trying for learning RAG and AI-native database patterns. For production .NET/Azure systems, benchmark against PostgreSQL + pgvector or Azure AI Search for recall, latency, cost, operations, and integration quality.
 
-## 10. Tài liệu chính thức
+## 10. Official Documentation
 
 - [MatrixOne GitHub](https://github.com/matrixorigin/matrixone)
 - [MatrixOne Documentation](https://docs.matrixorigin.cn/mo/en/)
@@ -231,4 +231,4 @@ Luồng demo: chạy MatrixOne bằng Docker, chạy ASP.NET Core API, chạy Re
 
 ---
 
-*Ghi chú: Các ví dụ SQL và Docker là điểm khởi đầu để thử nghiệm. Cần đối chiếu tài liệu tương ứng với phiên bản MatrixOne cụ thể trước khi chạy production.*
+*Note: The SQL and Docker examples are starting points for experimentation. Always check the documentation for the specific MatrixOne version you are using before production deployment.*
