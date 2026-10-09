@@ -199,6 +199,17 @@ Azure OpenAI          MatrixOne
 2. **Phase 2 — Reliability:** background jobs, idempotency, retry, document update và citations.
 3. **Phase 3 — Advanced RAG:** hybrid search, reranking, access controls, evaluation set.
 
+### Demo trong repo này: Ticketshine Support Copilot
+
+Repo này mở rộng guide thành một demo học tập có thể đưa vào portfolio:
+
+- Spec: `docs/superpowers/specs/2026-10-08-ticketshine-support-copilot-design.md`
+- Backend: `src/TicketshineSupportCopilot.Api`
+- Frontend: `web`
+- Sample data: `sample-data/ticketshine`
+
+Luồng demo: chạy MatrixOne bằng Docker, chạy ASP.NET Core API, chạy React UI, bấm **Index docs**, sau đó hỏi các câu support như refund, delayed order, transfer email hoặc escalation. App sẽ retrieve chunks từ MatrixOne và trả lời kèm citations.
+
 ## 9. So sánh nhanh
 
 | Giải pháp | Phù hợp khi |

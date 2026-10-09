@@ -1,0 +1,6 @@
+services:
+  matrixone:
+    image: matrixorigin/matrixone:latest
+    container_name: ticketshine-matrixone
+    ports:
+      - "127.0.0.1:6001:6001"

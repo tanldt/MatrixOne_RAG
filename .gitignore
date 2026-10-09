@@ -1,0 +1,21 @@
+# .NET
+bin/
+obj/
+
+# Node / Vite
+node_modules/
+dist/
+
+# Local config and editor noise
+.env
+.env.*
+!.env.example
+.vs/
+.vscode/
+
+# Agent scratch/work logs
+.superpowers/
+
+# OS files
+Thumbs.db
+.DS_Store

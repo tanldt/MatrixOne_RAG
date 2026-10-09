@@ -1,0 +1,276 @@
+.app-shell {
+  min-height: 100vh;
+  background: #f6f7f9;
+  color: #17202a;
+}
+
+.workspace {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #40627a;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+h2 {
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #c9d4dd;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #17202a;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary-action {
+  min-width: 104px;
+  min-height: 40px;
+  padding: 0 14px;
+  background: #1264a3;
+  border-color: #1264a3;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.status-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.status-strip span {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid #d8e0e7;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #4f5f6d;
+  font-size: 13px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.chat-panel,
+.side-panel {
+  border: 1px solid #d8e0e7;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.chat-panel {
+  min-height: 680px;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+}
+
+.messages {
+  min-height: 420px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+}
+
+.empty-state {
+  margin: auto;
+  max-width: 460px;
+  text-align: center;
+  color: #607080;
+}
+
+.empty-state h2 {
+  margin-bottom: 8px;
+  color: #17202a;
+  font-size: 20px;
+}
+
+.message {
+  max-width: min(720px, 92%);
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: #e7f0f7;
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background: #f4f6f8;
+}
+
+.message button {
+  margin-top: 10px;
+  min-height: 32px;
+  padding: 0 10px;
+  color: #1264a3;
+}
+
+.examples {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid #e4e9ee;
+}
+
+.examples button {
+  min-height: 44px;
+  padding: 8px 10px;
+  text-align: left;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 10px;
+  padding: 14px 18px 18px;
+  border-top: 1px solid #e4e9ee;
+}
+
+.composer textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 72px;
+  max-height: 180px;
+  border: 1px solid #c9d4dd;
+  border-radius: 6px;
+  padding: 10px;
+  color: #17202a;
+}
+
+.composer button {
+  min-height: 72px;
+  background: #243447;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.side-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.side-panel section {
+  display: grid;
+  gap: 10px;
+}
+
+.muted {
+  color: #6a7884;
+  line-height: 1.45;
+}
+
+.citation-list,
+.doc-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
+.citation-list li,
+.doc-list li {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid #e0e6eb;
+  border-radius: 6px;
+  background: #fbfcfd;
+  overflow-wrap: anywhere;
+}
+
+.citation-list span,
+.doc-list small,
+.citation-list small {
+  color: #667684;
+}
+
+@media (max-width: 860px) {
+  .workspace {
+    width: min(100% - 20px, 720px);
+    padding-top: 12px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-panel {
+    min-height: 620px;
+  }
+
+  .examples {
+    grid-template-columns: 1fr;
+  }
+
+  .composer {
+    grid-template-columns: 1fr;
+  }
+
+  .composer button {
+    min-height: 44px;
+  }
+}
